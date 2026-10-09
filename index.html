@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD — Kontrol Inkubator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* ── Palet: putih bersih dengan aksen biru ── */
+      --bg: #FFFFFF;
+      --bg-soft: radial-gradient(ellipse 900px 500px at 50% -10%, #EAF2FF 0%, #FFFFFF 60%);
+      --panel: #F5F9FF;
+      --panel-2: #EAF2FF;
+      --ring-track: #DCE9FB;
+      --blue: #2563EB;
+      --blue-soft: rgba(37, 99, 235, 0.10);
+      --sky: #0EA5E9;
+      --sky-soft: rgba(14, 165, 233, 0.12);
+      --ink: #0B1E3D;
+      --muted: #5B7290;
+      --danger: #DC2626;
+      --danger-soft: rgba(220, 38, 38, 0.08);
+      --border: rgba(11, 30, 61, 0.08);
+      --display: 'Fraunces', Georgia, serif;
+      --sans: 'Work Sans', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      background: var(--bg-soft), var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    h1, h2 {
+      font-family: var(--display);
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .egg-mark {
+      width: 28px;
+      height: 34px;
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-family: var(--display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: -2px;
+    }
+
+    .status-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .conn-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    .conn-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .conn-dot.online { background: var(--sky); }
+    .conn-dot.offline { background: var(--danger); }
+
+    /* ── ESP32 BANNER ── */
+    .esp-banner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .esp-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .esp-banner.online { background: var(--sky-soft); color: #0369A1; border-color: transparent; }
+    .esp-banner.online .esp-pulse { background: var(--sky); animation: napas 1.8s ease-in-out infinite; }
+    .esp-banner.offline { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+    .esp-banner.offline .esp-pulse { background: var(--danger); }
+
+    @keyframes napas {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── ALERT SENSOR ── */
+    .sensor-alert {
+      margin: 0 32px;
+      margin-top: 18px;
+      background: var(--danger-soft);
+      border: 1px solid rgba(220, 38, 38, 0.25);
+      color: #7F1D1D;
+      font-size: 0.85rem;
+      padding: 12px 18px;
+      border-radius: 12px;
+    }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 32px 64px;
+    }
+
+    /* ── HERO: GAUGE SUHU ── */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      padding: 12px 0 40px;
+      animation: muncul 0.7s ease-out;
+    }
+
+    @keyframes muncul {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero { animation: none; }
+      .esp-banner.online .esp-pulse { animation: none; }
+    }
+
+    .gauge-wrap { flex-shrink: 0; }
+
+    .gauge {
+      --pct: 0;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      background: conic-gradient(var(--blue) calc(var(--pct) * 1%), var(--ring-track) 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px -12px var(--blue-soft);
+      transition: background 0.6s ease;
+    }
+
+    .gauge-inner {
+      width: 184px;
+      height: 184px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2px;
+      box-shadow: 0 1px 3px rgba(11, 30, 61, 0.08);
+    }
+
+    .gauge-value {
+      font-family: var(--display);
+      font-size: 3.4rem;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .gauge-unit {
+      font-size: 0.78rem;
+      color: var(--muted);
+      max-width: 120px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 220px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .meta-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-width: 150px;
+    }
+
+    .meta-value {
+      font-family: var(--display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--sky);
+    }
+
+    .meta-suffix {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .meta-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* ── PANEL GRID ── */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .panel-grid { grid-template-columns: 1fr; }
+      .hero { justify-content: center; text-align: center; }
+      .meta-item { justify-content: center; }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px 28px;
+    }
+
+    .panel h2 {
+      font-size: 1.15rem;
+      margin-bottom: 18px;
+    }
+
+    /* ── DEVICE ROWS ── */
+    .device-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .device-row:last-of-type { border-bottom: none; }
+
+    .device-id {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .device-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--panel-2);
+    }
+
+    .device-name {
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .device-pin {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 999px;
+    }
+
+    .pill.on { background: var(--sky-soft); color: #0369A1; }
+    .pill.off { background: rgba(11, 30, 61, 0.05); color: var(--muted); }
+
+    /* ── TIMER MOTOR ── */
+    .motor-timer { margin-top: 16px; }
+
+    .timer-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .timer-track {
+      height: 5px;
+      background: var(--ring-track);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--sky);
+      border-radius: 999px;
+      transition: width 1s linear;
+    }
+
+    .timer-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .timer-cycle {
+      font-size: 0.75rem;
+      color: var(--blue);
+      margin-top: 6px;
+    }
+
+    /* ── FORM KONTROL ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field span {
+      font-size: 0.82rem;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .field input {
+      background: #FFFFFF;
+      border: 1px solid rgba(11, 30, 61, 0.14);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field input:focus { border-color: var(--blue); }
+    .field input:disabled { opacity: 0.5; }
+
+    .field small {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-start { background: var(--blue); color: #FFFFFF; }
+    .btn-stop {
+      background: transparent;
+      border: 1px solid rgba(11, 30, 61, 0.15);
+      color: var(--muted);
+    }
+    .btn-stop:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+
+    /* ── CHART ── */
+    .chart-panel { margin-bottom: 20px; }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    canvas { width: 100% !important; }
+
+    /* ── TABEL ── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.76rem;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(11, 30, 61, 0.05);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .temp-cell { color: var(--blue); font-weight: 600; }
+
+    .empty-row {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      left: auto;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 20px;
+      font-size: 0.85rem;
+      box-shadow: 0 8px 24px rgba(11, 30, 61, 0.1);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s;
+      max-width: calc(100% - 48px);
+    }
+
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { color: #0369A1; box-shadow: 0 0 0 1px var(--sky-soft) inset; }
+    #toast.error { color: var(--danger); box-shadow: 0 0 0 1px var(--danger-soft) inset; }
+
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="egg-mark" viewBox="0 0 28 34" fill="none">
+        <path d="M14 1C21 11 26 19 26 24.5C26 29.75 20.6 33 14 33C7.4 33 2 29.75 2 24.5C2 19 7 11 14 1Z" fill="#2563EB" fill-opacity="0.9"/>
+      </svg>
+      <div>
+        <div class="brand-name">DASHBOARD</div>
+        <div class="brand-sub">Kontrol inkubator</div>
+      </div>
+    </div>
+
+    <div class="status-cluster">
+      <div class="esp-banner unknown" id="esp32Banner">
+        <span class="esp-pulse"></span>
+        <span id="esp32Label">ESP32 menunggu data…</span>
+      </div>
+      <div class="conn-badge">
+        <span class="conn-dot" id="connDot"></span>
+        <span id="connLabel">Menghubungkan…</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="sensorAlert" class="sensor-alert" style="display:none">
+    Sensor suhu tidak terbaca — periksa sambungan DS18B20 dan resistor pull-up.
+  </div>
+
+  <main>
+
+    <section class="hero">
+      <div class="gauge-wrap">
+        <div class="gauge" id="gaugeRing">
+          <div class="gauge-inner">
+            <div class="gauge-value" id="dispSuhu">--</div>
+            <div class="gauge-unit">°C di ruang tetas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">Suhu target</span>
+          <span class="meta-value" id="dispTarget">--</span><span class="meta-suffix">°C</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Pembaruan terakhir</span>
+          <span class="meta-value" style="font-size:1.05rem" id="dispUpdate">--</span>
+        </div>
+        <div class="esp-banner unknown" id="esp32CardBanner">
+          <span class="esp-pulse"></span>
+          <div>
+            <div id="esp32CardLabel">ESP32 menunggu data…</div>
+            <div class="meta-sub" id="esp32LastSeen"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel-grid">
+      <div class="panel">
+        <h2>Perangkat</h2>
+
+        <div class="device-row">
+          <div class="device-id">
+            <span class="device-icon">🔥</span>
+            <div>
+              <p class="device-name">Pemanas</p>
+              <p class="device-pin">Relay, pin 12</p>
+            </div>
+          </div>
+          <span class="pill off" id="statusHeater">OFF</span>
+        </div>
+
+        <div class="device-row">
+          <div class="device-id">
+            <span class="device-icon">🌀</span>
+            <div>
+              <p class="device-name">Motor pengaduk</p>
+              <p class="device-pin">L298N, pin 14</p>
+            </div>
+          </div>
+          <span class="pill off" id="statusMotor">OFF</span>
+        </div>
+
+        <div class="motor-timer" id="motorTimerWrap" style="display:none">
+          <p class="timer-caption">Progres durasi motor</p>
+          <div class="timer-track">
+            <div class="timer-bar" id="timerBar"></div>
+          </div>
+          <div class="timer-labels">
+            <span id="timerElapsed">0m</span>
+            <span id="timerTotal">--</span>
+          </div>
+          <p class="timer-cycle" id="motorCycleInfo"></p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Atur inkubator</h2>
+        <div class="form-grid">
+          <label class="field">
+            <span>Suhu target</span>
+            <input type="number" id="inputSuhu" min="20" max="60" value="37" placeholder="37">
+            <small>°C — pemanas menyala di bawah suhu ini</small>
+          </label>
+
+          <label class="field">
+            <span>Kecepatan motor</span>
+            <input type="number" id="inputPWM" min="0" max="255" value="150" placeholder="150">
+            <small>RPM 0–255</small>
+          </label>
+
+          <label class="field">
+            <span>Durasi jalan</span>
+            <input type="number" id="inputDurasi" min="0" max="24" step="0.5" value="2" placeholder="2">
+            <small>jam — siklus 2 menit hidup / 3 menit mati</small>
+          </label>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-start" id="btnStart" onclick="startAlat()">Mulai</button>
+          <button class="btn btn-stop" id="btnStop" onclick="stopAlat()" disabled>Hentikan</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel chart-panel">
+      <h2>Riwayat suhu</h2>
+      <div class="chart-wrap">
+        <canvas id="chartSuhu"></canvas>
+      </div>
+    </section>
+
+    <section class="panel table-panel">
+      <h2>Catatan historis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Suhu (°C)</th>
+              <th>Pemanas</th>
+              <th>Target</th>
+            </tr>
+          </thead>
+          <tbody id="tabelData">
+            <tr>
+              <td colspan="4" class="empty-row">Memuat data…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast"></div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {getDatabase, ref, set, onValue, query, orderByKey, limitToLast}
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // ── KONFIGURASI FIREBASE ──
+    const firebaseConfig = {
+      projectId: "incubatorcloud",
+      apiKey: "AIzaSyAHuGNYJFGmHlGd_8aTz-r0hgyFX7lm7VI",
+      databaseURL: "https://incubatorcloud-default-rtdb.asia-southeast1.firebasedatabase.app",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ── REFERENSI NODE ──
+    const kontrolRef = ref(db, '/kontrol');
+    const statusRef = ref(db, '/status');
+    const suhuRef = ref(db, '/suhu');
+
+    // ── STATE LOKAL ──
+    let running = false;
+    let motorStartEpoch = 0;
+    let motorDurasiMs = 0;
+    let timerInterval = null;
+    let chartLabels = [];
+    let chartData = [];
+
+    // ── STATE STATUS ESP32 ──
+    let lastHeaterOn = false;
+    let lastTimestamp = 0;
+    let lastChangeTime = 0;
+    const ESP32_TIMEOUT = 7;
+
+    // ── GAUGE SUHU (elemen visual, murni tampilan) ──
+    const GAUGE_MIN = 20, GAUGE_MAX = 45;
+    function setGauge(suhu) {
+      const pct = Math.min(100, Math.max(0, ((suhu - GAUGE_MIN) / (GAUGE_MAX - GAUGE_MIN)) * 100));
+      document.getElementById('gaugeRing').style.setProperty('--pct', pct.toFixed(1));
+    }
+
+    // ── INIT CHART ──
+    const ctx = document.getElementById('chartSuhu').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [{
+          label: 'Suhu (°C)',
+          data: chartData,
+          borderColor: '#2563EB',
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#2563EB',
+          tension: 0.4,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {legend: {display: false}},
+        scales: {
+          x: {ticks: {color: '#5B7290', font: {family: 'Work Sans', size: 10}}, grid: {color: 'rgba(11,30,61,0.06)'}},
+          y: {ticks: {color: '#5B7290', font: {family: 'Work Sans', size: 10}}, grid: {color: 'rgba(11,30,61,0.06)'}}
+        }
+      }
+    });
+
+    // ── KONEKSI STATUS ──
+    function setConn(online) {
+      const dot = document.getElementById('connDot');
+      const label = document.getElementById('connLabel');
+      dot.className = 'conn-dot ' + (online ? 'online' : 'offline');
+      label.textContent = online ? 'Firebase terhubung' : 'Terputus';
+    }
+
+    // ── FORMAT SELISIH WAKTU ──
+    function formatSelisih(detikTotal) {
+      const jam = Math.floor(detikTotal / 3600);
+      const menit = Math.floor((detikTotal % 3600) / 60);
+      const detik = detikTotal % 60;
+      if (jam > 0) return `${jam} jam ${menit} menit ${detik} detik yang lalu`;
+      if (menit > 0) return `${menit} menit ${detik} detik yang lalu`;
+      return `${detik} detik yang lalu`;
+    }
+
+    // ── SET BANNER STATUS ESP32 ──
+    function setESP32Status(state, lastSeenText) {
+      const banner = document.getElementById('esp32Banner');
+      const bannerCard = document.getElementById('esp32CardBanner');
+      const labelH = document.getElementById('esp32Label');
+      const labelC = document.getElementById('esp32CardLabel');
+      const lastSeen = document.getElementById('esp32LastSeen');
+
+      const labels = {
+        online: 'ESP32 online',
+        offline: 'ESP32 offline',
+        unknown: 'ESP32 menunggu…',
+      };
+
+      banner.className = 'esp-banner ' + state;
+      bannerCard.className = 'esp-banner ' + state;
+      labelH.textContent = labels[state];
+      labelC.textContent = labels[state];
+      lastSeen.textContent = lastSeenText || '';
+    }
+
+    // ── ENGINE REALTIME CHECK TIMEOUT ESP32 ──
+    setInterval(() => {
+      if (lastChangeTime === 0) return;
+
+      const sekarangMs = Date.now();
+      const detikSejakUpdate = Math.floor((sekarangMs - lastChangeTime) / 1000);
+
+      if (detikSejakUpdate <= ESP32_TIMEOUT) {
+        setESP32Status('online', detikSejakUpdate <= 20 ? '' : `${detikSejakUpdate} detik yang lalu`);
+      } else {
+        setESP32Status('offline', `Terakhir online: ${formatSelisih(detikSejakUpdate)}`);
+      }
+    }, 1000);
+
+    // ── LISTEN STATUS DARI ESP32 ──
+    onValue(statusRef, snap => {
+      setConn(true);
+      const d = snap.val();
+      if (!d) return;
+
+      if (d.timestamp) {
+        if (lastTimestamp === 0 || d.timestamp !== lastTimestamp) {
+          lastTimestamp = d.timestamp;
+          lastChangeTime = ((d.timestamp * 1000) - (25200000));
+        }
+      }
+
+      const sensorError = d.sensorError === 1 || d.sensorError === true;
+      const alertEl = document.getElementById('sensorAlert');
+
+      if (sensorError) {
+        alertEl.style.display = 'block';
+        document.getElementById('dispSuhu').textContent = 'ERR';
+      } else {
+        alertEl.style.display = 'none';
+        if (d.suhu !== undefined) {
+          document.getElementById('dispSuhu').textContent = Number(d.suhu).toFixed(1);
+          setGauge(Number(d.suhu));
+        }
+      }
+
+      lastHeaterOn = (d.heater === 1 || d.heater === true);
+      const elH = document.getElementById('statusHeater');
+      elH.textContent = lastHeaterOn ? 'ON' : 'OFF';
+      elH.className = 'pill ' + (lastHeaterOn ? 'on' : 'off');
+
+      const motorOn = (d.motor === 1 || d.motor === true);
+      const elM = document.getElementById('statusMotor');
+      elM.textContent = motorOn ? 'ON' : 'OFF';
+      elM.className = 'pill ' + (motorOn ? 'on' : 'off');
+
+      if (d.timestamp) {
+        const t = new Date(d.timestamp * 1000);
+        const jam = t.getHours().toString().padStart(2, '0');
+        const mnt = t.getMinutes().toString().padStart(2, '0');
+        const dtk = t.getSeconds().toString().padStart(2, '0');
+        document.getElementById('dispUpdate').textContent = `${jam}:${mnt}:${dtk}`;
+      }
+    }, err => {
+      setConn(false);
+      setESP32Status('offline', 'Koneksi Firebase terputus');
+      console.error(err);
+    });
+
+    // ── LISTEN KONTROL (SINKRONISASI STATE WEB) ──
+    onValue(kontrolRef, snap => {
+      const k = snap.val();
+      if (!k) return;
+      if (k.target !== undefined) document.getElementById('dispTarget').textContent = k.target;
+      if (k.aktif !== undefined) {
+        running = k.aktif == 1 || k.aktif === true;
+        syncBtnState();
+        if (running && k.motorStartEpoch) {
+          motorStartEpoch = k.motorStartEpoch;
+          motorDurasiMs = (k.durasiJam || 0) * 3600000;
+          startTimerUI();
+        } else if (!running) {
+          stopTimerUI();
+        }
+      }
+    });
+
+    // ── LISTEN SUHU (GRAFIK & TABEL) ──
+    const suhuQuery = query(suhuRef, orderByKey(), limitToLast(20));
+    onValue(suhuQuery, snap => {
+      const raw = snap.val();
+      if (!raw) return;
+
+      chartLabels.length = 0;
+      chartData.length = 0;
+      const rows = [];
+
+      Object.entries(raw).sort((a, b) => a[0].localeCompare(b[0])).forEach(([key, val]) => {
+        const suhu = val.suhu ?? val;
+        const w = val.waktu;
+        const target_s = val.target_suhu;
+        const sts_heater = val.status_heater;
+        const label = w ? `${w.jam}:${String(w.menit).padStart(2, '0')}` : key.slice(-5);
+        const tgl = w ? `${w.tanggal}/${w.bulan}/${w.tahun} ${w.jam}:${String(w.menit).padStart(2, '0')}` : key;
+        chartLabels.push(label);
+        chartData.push(Number(suhu).toFixed(1));
+        rows.push({tgl, suhu, sts_heater, target_s});
+      });
+
+      chart.update();
+
+      const tbody = document.getElementById('tabelData');
+      tbody.innerHTML = '';
+      rows.reverse().forEach(r => {
+        const heaterStat = (r.sts_heater == true) ? '<span style="color:#2563EB">ON</span>' : '<span style="color:#5B7290">OFF</span>';
+        tbody.innerHTML += `<tr>
+        <td>${r.tgl}</td>
+        <td class="temp-cell">${r.suhu}</td>
+        <td>${heaterStat}</td>
+        <td>${r.target_s}</td>
+      </tr>`;
+      });
+    });
+
+    // ── BUTTON ACTION: START ALAT ──
+    window.startAlat = function () {
+      const suhu = parseFloat(document.getElementById('inputSuhu').value);
+      const pwm = parseInt(document.getElementById('inputPWM').value);
+      const durasi = parseFloat(document.getElementById('inputDurasi').value);
+
+      if (isNaN(suhu) || isNaN(pwm) || isNaN(durasi)) {
+        showToast('Lengkapi semua inputan terlebih dahulu', 'error'); return;
+      }
+      if (pwm < 0 || pwm > 255) {
+        showToast('PWM harus antara 0–255', 'error'); return;
+      }
+      if (durasi <= 0) {
+        showToast('Durasi motor harus lebih dari 0', 'error'); return;
+      }
+
+      const nowEpoch = Math.floor(Date.now() / 1000);
+
+      set(kontrolRef, {
+        aktif: 1,
+        target: suhu,
+        pwmMotor: pwm,
+        durasiJam: durasi,
+        motorStartEpoch: nowEpoch,
+      }).then(() => {
+        showToast('Perintah mulai dikirim ke ESP32', 'success');
+      }).catch(e => showToast('Gagal: ' + e.message, 'error'));
+    };
+
+    // ── BUTTON ACTION: STOP ALAT ──
+    window.stopAlat = function () {
+      set(kontrolRef, {aktif: 0})
+        .then(() => showToast('Perintah berhenti dikirim', 'success'))
+        .catch(e => showToast('Gagal: ' + e.message, 'error'));
+    };
+
+    // ── SINKRONISASI STATUS INPUT TOMBOL ──
+    function syncBtnState() {
+      document.getElementById('btnStart').disabled = running;
+      document.getElementById('btnStop').disabled = !running;
+      ['inputSuhu', 'inputPWM', 'inputDurasi'].forEach(id => {
+        document.getElementById(id).disabled = running;
+      });
+    }
+
+    // ── TIMER PROGRESS UI MOTOR PENGADUK ──
+    function startTimerUI() {
+      document.getElementById('motorTimerWrap').style.display = 'block';
+      document.getElementById('timerTotal').textContent = (motorDurasiMs / 3600000).toFixed(1) + ' jam';
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const elapsedMs = Date.now() - (motorStartEpoch * 1000);
+        const pct = Math.min(100, (elapsedMs / motorDurasiMs) * 100);
+        document.getElementById('timerBar').style.width = pct + '%';
+
+        const sisaMs = Math.max(0, motorDurasiMs - elapsedMs);
+        const sisaMnt = Math.floor(sisaMs / 60000);
+        const sisaDetik = Math.floor((sisaMs % 60000) / 1000);
+        document.getElementById('timerElapsed').textContent = `Sisa: ${sisaMnt}m ${sisaDetik}s`;
+
+        const CYCLE_ON = 120;
+        const CYCLE_TOT = 300;
+        const cyclePos = Math.floor(elapsedMs / 1000) % CYCLE_TOT;
+        let faseMotor, sisaSiklus;
+
+        if (cyclePos < CYCLE_ON) {
+          faseMotor = 'Motor ON';
+          sisaSiklus = CYCLE_ON - cyclePos;
+        } else {
+          faseMotor = 'Motor OFF';
+          sisaSiklus = CYCLE_TOT - cyclePos;
+        }
+
+        const mSisa = Math.floor(sisaSiklus / 60);
+        const sSisa = sisaSiklus % 60;
+        const sisaTeks = mSisa > 0 ? `${mSisa}m ${sSisa}s` : `${sSisa}s`;
+        document.getElementById('motorCycleInfo').textContent = `${faseMotor} — ganti fase dalam ${sisaTeks}`;
+
+        if (elapsedMs >= motorDurasiMs) {
+          clearInterval(timerInterval);
+          document.getElementById('motorCycleInfo').textContent = 'Durasi motor selesai';
+        }
+      }, 1000);
+    }
+
+    function stopTimerUI() {
+      if (timerInterval) clearInterval(timerInterval);
+      document.getElementById('motorTimerWrap').style.display = 'none';
+      document.getElementById('timerBar').style.width = '0%';
+    }
+
+    // ── NOTIFIKASI TOAST ──
+    window.showToast = function (msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      setTimeout(() => {el.className = '';}, 3000);
+    };
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+</body>
+
+</html>
